@@ -1,46 +1,38 @@
 import discord
+from discord.ext import commands
 from bot_logic import gen_pass
 from bot_logic import flip_coin
 from bot_logic import gen_emodji
 
-# la variabile indents contiene i permessi al bot
 intents = discord.Intents.default()
-# abilita il permesso a leggere i contenuti dei messaggi
 intents.message_content = True
-# crea un bot e passa gli indents
-client = discord.Client(intents=intents)
 
-@client.event
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.event
 async def on_ready():
-    print(f'Abbiamo fatto l\'accesso come {client.user}')
+    print(f'Hai fatto l\'accesso come {bot.user}')
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    if message.content.startswith('$ciao'):
-        await message.channel.send("Ciao!")
-    elif message.content.startswith('$arrivederci'):
-        await message.channel.send("\U0001f642")
-    elif message.content.startswith('$smile'):
-        await message.channel.send(gen_emodji())
-    elif message.content.startswith('$coin'):
-        await message.channel.send(flip_coin())
-    elif message.content.startswith('$password'):
-        await message.channel.send("La tua password " + gen_pass(30))
-    elif message.content.startswith('$comandi'):
-        await message.channel.send("""**I comandi disponibili sono:**
-                - Lancio moneta: `$coin`
-                - Genera password: `$password`
-                - Emoji casuale: `$smile`
-                - Benvenuto: `$ciao`
-                - Arrivederci: `$arrivederci`""")
-    else:
-        await message.channel.send("""**Comando non riconosciuto. I comandi disponibili sono:**
-                - Lancio moneta: `$coin`
-                - Genera password: `$password`
-                - Emoji casuale: `$smile`
-                - Benvenuto: `$ciao`
-                - Arrivederci: `$arrivederci`""")
+@bot.command()
+async def ciao(ctx):
+    await ctx.send(f'Ciao! Sono un bot {bot.user}!')
 
-client.run("MTU1MzA3Njk4NDY5ODExMDA0NQ.GowIWU.vvMTG4j7Ih5VpEA9uR7dp0-PoxhZ5FSZqmP-MA")
+@bot.command()
+async def pasw(ctx):
+    await ctx.send(gen_pass(10))
+
+@bot.command()
+async def coin(ctx):
+    await ctx.send(flip_coin())
+
+@bot.command()
+async def smile(ctx):
+    await ctx.send(gen_emodji())
+
+@bot.command()
+async def repeat(ctx, times: int, content='repeating...'):
+    """Repeats a message multiple times."""
+    for i in range(times):
+        await ctx.send(content)
+
+bot.run("MTU1MzA3Njk4NDY5ODExMDA0NQ.GowIWU.vvMTG4j7Ih5VpEA9uR7dp0-PoxhZ5FSZqmP-MA")
